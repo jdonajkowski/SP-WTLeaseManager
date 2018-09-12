@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "sp-wt-lease-manager-client-side-solution",
+    "id": "f840c2e3-ed66-4ae5-8a3b-c34eed5b5859",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/sp-wt-lease-manager.sppkg"
+  }
+}

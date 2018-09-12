@@ -1,0 +1,11 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "isCreatingSolution": true,
+    "environment": "spo",
+    "version": "1.6.0",
+    "libraryName": "sp-wt-lease-manager",
+    "libraryId": "f840c2e3-ed66-4ae5-8a3b-c34eed5b5859",
+    "packageManager": "npm",
+    "componentType": "webpart"
+  }
+}
