@@ -1,6 +1,7 @@
 import * as ko from 'knockout';
 import * as $ from 'jquery';
 import '@progress/kendo-ui';
+import 'kendo-ui-core';
 import styles from './WadeTrimLeaseManager.module.scss';
 import { IWadeTrimLeaseManagerWebPartProps } from './WadeTrimLeaseManagerWebPart';
 import { SPComponentLoader } from '@microsoft/sp-loader';

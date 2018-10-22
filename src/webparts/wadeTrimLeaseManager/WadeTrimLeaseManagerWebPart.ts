@@ -15,6 +15,7 @@ import WadeTrimLeaseManagerViewModel, { IWadeTrimLeaseManagerBindingContext } fr
 
 //Telerik Kendo UI Required Imports
 import '@progress/kendo-ui';
+import 'kendo-ui-core'
 import * as $ from 'jquery';
 import {  SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions} from '@microsoft/sp-http';
 import { IWebPartContext } from '@microsoft/sp-webpart-base';
@@ -92,7 +93,7 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
               this._koItems.notifySubscribers(FirstItems,'items');
               
               kgrid.dataSource.data(this._koItems());
-              kgrid.dataSource.data.First().style(styles["k-header"]);
+              //kgrid.dataSource.data.First().style(styles["k-header"]);
               
             });
   }
@@ -229,7 +230,7 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
         dataSource: [
           { text: "Property", value: 1 },  
           { text: "Plotter", value: 2},       
-            { text: "Printer", value: 3 },
+            { text: "Copier", value: 3 },
             { text: "Vehicle", value: 4 }
         ],
         change:(test)=>{sp.web.lists.getByTitle("LeaseManagement").items.getAll().then((newItems: any[]) =>{
@@ -267,7 +268,7 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
               grida.dataSource.filter({ field: "RecordType", operator: "contains", value: "Plotter" });
               break;
             }
-            case "Printer":{
+            case "Copier":{
               grida.hideColumn("Premises"); 
               grida.hideColumn("Lanlord");
               grida.hideColumn("Lease_x0020_Expiration");
@@ -281,7 +282,7 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
               grida.showColumn("Lease_x0020_Expiration");
               grida.showColumn("Minimum_x0020_Payment");
 
-              grida.dataSource.filter({ field: "RecordType", operator: "contains", value: "Printer" });
+              grida.dataSource.filter({ field: "RecordType", operator: "contains", value: "Copier" });
               break;
             }
             case "Vehicle":{
@@ -367,7 +368,7 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
             }
         },
         
-        pageSize: 10,
+        
         filter:({ field: "RecordType", operator: "contains", value: "Property" }),
         
     },
@@ -389,7 +390,7 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
             EquipEditWindow.title(selectedlease.Title);
             EquipEditWindow.center().open();
             break;
-            case "Printer":
+            case "Copier":
             UpdateEquipData(selectedlease);
             EquipEditWindow.title(selectedlease.Title);
             EquipEditWindow.center().open();
@@ -752,24 +753,28 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
               UpdatePropData(selectedlease);
               PropEditWindow.title(selectedlease.Title);
               PropEditWindow.center().open();
+              WadeTrimLeaseManagerWebPart._NewItem = false;
               break;
               case "Plotter":
               WadeTrimLeaseManagerWebPart._NewItem = false;
               UpdateEquipData(selectedlease);
               EquipEditWindow.title(selectedlease.Title);
               EquipEditWindow.center().open();
+              WadeTrimLeaseManagerWebPart._NewItem = false;
               break;
-              case "Printer":
+              case "Copier":
               WadeTrimLeaseManagerWebPart._NewItem = false;
               UpdateEquipData(selectedlease);
               EquipEditWindow.title(selectedlease.Title);
               EquipEditWindow.center().open();
+              WadeTrimLeaseManagerWebPart._NewItem = false;
               break;
               case "Vehicle":
               WadeTrimLeaseManagerWebPart._NewItem = false;
               UpdateVehicleData(selectedlease);
               VehicleEditWindow.title(selectedlease.Title);
               VehicleEditWindow.center().open();
+              WadeTrimLeaseManagerWebPart._NewItem = false;
               break;
           }
         }
@@ -870,7 +875,47 @@ function SetUpPropWindow() {
 
       $('#Prop_Field_18_Label').text("Right of First Refusal :");
       
+      $('#Prop_Field_19_Label').text("Security Deposit:");
       
+      var Prop_Attachments = $("#Prop_Attachments").kendoListBox({dataTextField:"FileName",dataValueField:"ServerRelativeUrl",template:'<div class="item"><a href="#:ServerRelativeUrl#" target="_blank">#:FileName# </a></div>',selectable:"single"}).data("kendoListBox");
+
+   $('#PropAddFile').kendoButton({
+      enable:(WadeTrimLeaseManagerWebPart._NewItem?false:true),
+      click:(arg)=>{
+        switch(WadeTrimLeaseManagerWebPart._NewItem)
+          {
+            case false:
+              const fileinput = $('#Vehicle_Field_20');
+              var filereader = new FileReader();
+              //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+              sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                  $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+                });
+                fileinput.val('');
+              });
+              break;
+      }
+    }})
+
+    $('#PropRemoveFile').kendoButton({
+      enable:(WadeTrimLeaseManagerWebPart._NewItem?false:true),
+      click:(arg)=>{
+        switch(WadeTrimLeaseManagerWebPart._NewItem)
+          {
+            case false:
+              const selected = $("#Prop_Attachments").data("kendoListBox").select().first();
+              var filereader = new FileReader();
+              let item = sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID);
+              item.attachmentFiles.getByName(selected[0].innerText).delete().then(()=>{
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                  $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+              })
+            })
+              break;
+      }
+    }})
+
       $('#Prop_Save_Top').kendoButton({
           click:Update=>{
             switch(WadeTrimLeaseManagerWebPart._NewItem)
@@ -892,10 +937,11 @@ function SetUpPropWindow() {
                   Electricity_x0020_Included:$('#Prop_Field_12').prop('checked'),
                   Water_x0020_Included:$('#Prop_Field_13').prop('checked'),
                   Gas_x0020_Included:$('#Prop_Field_14').prop('checked'),
-                  Operating_x0020_Expenses:$('#Prop_Field_15').val(),
+                  Operating_x0020_Expenses:$('#Prop_Field_15').data("kendoEditor").value(),
                   Tenant_x0020_Improvements_x0020_:$('#Prop_Field_16').data("kendoEditor").value(),
                   Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
                   Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
+                  Security_x0020_Deposit:$('#Prop_Field_19').val(),
                   RecordType:'Property'
                 }
               ).then(()=>{
@@ -918,10 +964,12 @@ function SetUpPropWindow() {
                   Electricity_x0020_Included:$('#Prop_Field_12').prop('checked'),
                   Water_x0020_Included:$('#Prop_Field_13').prop('checked'),
                   Gas_x0020_Included:$('#Prop_Field_14').prop('checked'),
-                  Operating_x0020_Expenses:$('#Prop_Field_15').val(),
+                  Operating_x0020_Expenses:$('#Prop_Field_15').data("kendoEditor").value(),
                   Tenant_x0020_Improvements_x0020_:$('#Prop_Field_16').data("kendoEditor").value(),
                   Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
                   Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
+                  Security_x0020_Deposit:$('#Prop_Field_19').val(),
+                  RecordType:'Property'
 
               }).then(()=>{
               $('#PropEditwindow').data("kendoWindow").close();
@@ -935,58 +983,63 @@ function SetUpPropWindow() {
             $('#Prop_Save_Bottom').kendoButton({
               click:Update=>{
                 switch(WadeTrimLeaseManagerWebPart._NewItem)
+            {
+              case true:
+              sp.web.lists.getByTitle("LeaseManagement").items.add(
                 {
-                  case true:
-                  sp.web.lists.getByTitle("LeaseManagement").items.add(
-                    {
-                      Title:$('#Prop_Field_1').val(),
-                      Premises:$('#Prop_Field_2').data("kendoEditor").value(),
-                      Lanlord:$('#Prop_Field_3').val(),
-                      Lease_x0020_Commencement:$('#Prop_Field_4').data("kendoDatePicker").value(),
-                      Lease_x0020_Expiration:$('#Prop_Field_5').data("kendoDatePicker").value(),
-                      Rent:$('#Prop_Field_6').data("kendoEditor").value(),
-                      Cancellation_x0020_Option:$('#Prop_Field_7').prop('checked'),
-                      Cancellation_x0020_Details:$('#Prop_Field_8').data("kendoEditor").value(),
-                      Size:($('#Prop_Field_9').val())?$('#Prop_Field_9').val():0,
-                      Term:($('#Prop_Field_10').val())?$('#Prop_Field_10').val():0,
-                      Lease_x0020_Type:$('#Prop_Field_11').val(),
-                      Electricity_x0020_Included:$('#Prop_Field_12').prop('checked'),
-                      Water_x0020_Included:$('#Prop_Field_13').prop('checked'),
-                      Gas_x0020_Included:$('#Prop_Field_14').prop('checked'),
-                      Operating_x0020_Expenses:$('#Prop_Field_15').val(),
-                      Tenant_x0020_Improvements_x0020_:$('#Prop_Field_16').data("kendoEditor").value(),
-                      Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
-                      Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
-                    }
-                  );
-                  break;
-                  case false:
-                  sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).update({
-                      Title:$('#Prop_Field_1').val(),
-                      Premises:$('#Prop_Field_2').data("kendoEditor").value(),
-                      Lanlord:$('#Prop_Field_3').val(),
-                      Lease_x0020_Commencement:$('#Prop_Field_4').data("kendoDatePicker").value(),
-                      Lease_x0020_Expiration:$('#Prop_Field_5').data("kendoDatePicker").value(),
-                      Rent:$('#Prop_Field_6').data("kendoEditor").value(),
-                      Cancellation_x0020_Option:$('#Prop_Field_7').prop('checked'),
-                      Cancellation_x0020_Details:$('#Prop_Field_8').data("kendoEditor").value(),
-                      Size:($('#Prop_Field_9').val())?$('#Prop_Field_9').val():0,
-                      Term:($('#Prop_Field_10').val())?$('#Prop_Field_10').val():0,
-                      Lease_x0020_Type:$('#Prop_Field_11').val(),
-                      Electricity_x0020_Included:$('#Prop_Field_12').prop('checked'),
-                      Water_x0020_Included:$('#Prop_Field_13').prop('checked'),
-                      Gas_x0020_Included:$('#Prop_Field_14').prop('checked'),
-                      Operating_x0020_Expenses:$('#Prop_Field_15').val(),
-                      Tenant_x0020_Improvements_x0020_:$('#Prop_Field_16').data("kendoEditor").value(),
-                      Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
-                      Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
-    
-                  }).then(()=>{
-                  $('#PropEditwindow').data("kendoWindow").close();
-                    }); 
-                    break;
-                  }
+                  Title:$('#Prop_Field_1').val(),
+                  Premises:$('#Prop_Field_2').data("kendoEditor").value(),
+                  Lanlord:$('#Prop_Field_3').val(),
+                  Lease_x0020_Commencement:$('#Prop_Field_4').data("kendoDatePicker").value(),
+                  Lease_x0020_Expiration:$('#Prop_Field_5').data("kendoDatePicker").value(),
+                  Rent:$('#Prop_Field_6').data("kendoEditor").value(),
+                  Cancellation_x0020_Option:$('#Prop_Field_7').prop('checked'),
+                  Cancellation_x0020_Details:$('#Prop_Field_8').data("kendoEditor").value(),
+                  Size:($('#Prop_Field_9').val())?$('#Prop_Field_9').val():0,
+                  Term:($('#Prop_Field_10').val())?$('#Prop_Field_10').val():0,
+                  Lease_x0020_Type:$('#Prop_Field_11').val(),
+                  Electricity_x0020_Included:$('#Prop_Field_12').prop('checked'),
+                  Water_x0020_Included:$('#Prop_Field_13').prop('checked'),
+                  Gas_x0020_Included:$('#Prop_Field_14').prop('checked'),
+                  Operating_x0020_Expenses:$('#Prop_Field_15').data("kendoEditor").value(),
+                  Tenant_x0020_Improvements_x0020_:$('#Prop_Field_16').data("kendoEditor").value(),
+                  Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
+                  Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
+                  Security_x0020_Deposit:$('#Prop_Field_19').val(),
+                  RecordType:'Property'
                 }
+              ).then(()=>{
+                $('#PropEditwindow').data("kendoWindow").close();
+                  }); 
+              break;
+              case false:
+              sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).update({
+                  Title:$('#Prop_Field_1').val(),
+                  Premises:$('#Prop_Field_2').data("kendoEditor").value(),
+                  Lanlord:$('#Prop_Field_3').val(),
+                  Lease_x0020_Commencement:$('#Prop_Field_4').data("kendoDatePicker").value(),
+                  Lease_x0020_Expiration:$('#Prop_Field_5').data("kendoDatePicker").value(),
+                  Rent:$('#Prop_Field_6').data("kendoEditor").value(),
+                  Cancellation_x0020_Option:$('#Prop_Field_7').prop('checked'),
+                  Cancellation_x0020_Details:$('#Prop_Field_8').data("kendoEditor").value(),
+                  Size:($('#Prop_Field_9').val())?$('#Prop_Field_9').val():0,
+                  Term:($('#Prop_Field_10').val())?$('#Prop_Field_10').val():0,
+                  Lease_x0020_Type:$('#Prop_Field_11').val(),
+                  Electricity_x0020_Included:$('#Prop_Field_12').prop('checked'),
+                  Water_x0020_Included:$('#Prop_Field_13').prop('checked'),
+                  Gas_x0020_Included:$('#Prop_Field_14').prop('checked'),
+                  Operating_x0020_Expenses:$('#Prop_Field_15').data("kendoEditor").value(),
+                  Tenant_x0020_Improvements_x0020_:$('#Prop_Field_16').data("kendoEditor").value(),
+                  Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
+                  Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
+                  Security_x0020_Deposit:$('#Prop_Field_19').val(),
+                  RecordType:'Property'
+
+              }).then(()=>{
+              $('#PropEditwindow').data("kendoWindow").close();
+                }); 
+                break;
+              }}
               
                 });
 
@@ -1070,6 +1123,46 @@ function SetUpPropWindow() {
             $('#VehicleEditwindow').data("kendoWindow").close();
         }
     });
+    var Vehicle_Attachments = $("#Vehicle_Attachments").kendoListBox({dataTextField:"FileName",dataValueField:"ServerRelativeUrl",template:'<div class="item"><a href="#:ServerRelativeUrl#" target="_blank">#:FileName# </a></div>',selectable:"single"}).data("kendoListBox");
+
+   $('#VehicleAddFile').kendoButton({
+      enable:(WadeTrimLeaseManagerWebPart._NewItem?false:true),
+      click:(arg)=>{
+        switch(WadeTrimLeaseManagerWebPart._NewItem)
+          {
+            case false:
+              const fileinput = $('#Vehicle_Field_22');
+              var filereader = new FileReader();
+              //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+              sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                  $("#Vehicle_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+                });
+                fileinput.val('');
+              });
+              break;
+      }
+    }})
+
+    $('#VehicleRemoveFile').kendoButton({
+      enable:(WadeTrimLeaseManagerWebPart._NewItem?false:true),
+      click:(arg)=>{
+        switch(WadeTrimLeaseManagerWebPart._NewItem)
+          {
+            case false:
+              const selected = $("#Vehicle_Attachments").data("kendoListBox").select().first();
+              var filereader = new FileReader();
+              let item = sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID);
+              item.attachmentFiles.getByName(selected[0].innerText).delete().then(()=>{
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                  $("#Vehicle_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+              })
+            })
+              break;
+      }
+    }})
+
+
     
     
     $('#Vehicle_Save_Top').kendoButton({
@@ -1109,28 +1202,28 @@ function SetUpPropWindow() {
             case false:
             sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).update({
               Title:$('#Vehicle_Field_1').val(),
-                Driver:$('#Vehicle_Field_2').val(),
-                VIN:$('#Vehicle_Field_3').val(),
-                Project:$('#Vehicle_Field_4').val(),
-                CO_x002f_Phase_x002f_ORG:$('#Vehicle_Field_5').val(),
-                Unit:$('#Vehicle_Field_6').val(),
-                Market_x0020_Segment:$('#Vehicle_Field_7').val(),
-                Vehicle_x0020_Office:$('#Vehicle_Field_8').val(),
-                Leasing_x0020_Company:$('#Vehicle_Field_9').val(),
-                Lease_x0020_Expiration:$('#Vehicle_Field_10').data("kendoDatePicker").value(),
-                Minimum_x0020_Term:($('#Vehicle_Field_11').val())?$('#Vehicle_Field_11').val():0,
-                Billing_x0020_Fequency:$('#Vehicle_Field_12').val(),
-                Minimum_x0020_Payment:$($('#Vehicle_Field_13').val())?$('#Vehicle_Field_13').val():0,
-                Year:$('#Vehicle_Field_14').val(),
-                Make:$('#Vehicle_Field_15').val(),
-                Model:$('#Vehicle_Field_16').val(),
-                Lic_x0020_State:$('#Vehicle_Field_17').val(),
-                Plate_x0020__x0023_:$('#Vehicle_Field_18').val(),
-                Delivery_x0020_Date:$('#Vehicle_Field_19').data("kendoDatePicker").value(),
-                Mileage:$('#Vehicle_Field_20').data("kendoEditor").value(),
-                Buy_x0020_Out_x0020_Option:$('#Vehicle_Field_21').prop('checked')
-                
-
+              Driver:$('#Vehicle_Field_2').val(),
+              VIN:$('#Vehicle_Field_3').val(),
+              Project:$('#Vehicle_Field_4').val(),
+              CO_x002f_Phase_x002f_ORG:$('#Vehicle_Field_5').val(),
+              Unit:$('#Vehicle_Field_6').val(),
+              Market_x0020_Segment:$('#Vehicle_Field_7').val(),
+              Vehicle_x0020_Office:$('#Vehicle_Field_8').val(),
+              Leasing_x0020_Company:$('#Vehicle_Field_9').val(),
+              Lease_x0020_Expiration:$('#Vehicle_Field_10').data("kendoDatePicker").value(),
+              Minimum_x0020_Term:($('#Vehicle_Field_11').val())?$('#Vehicle_Field_11').val():0,
+              Billing_x0020_Fequency:$('#Vehicle_Field_12').val(),
+              Minimum_x0020_Payment:$($('#Vehicle_Field_13').val())?$('#Vehicle_Field_13').val():0,
+              Year:$('#Vehicle_Field_14').val(),
+              Make:$('#Vehicle_Field_15').val(),
+              Model:$('#Vehicle_Field_16').val(),
+              Lic_x0020_State:$('#Vehicle_Field_17').val(),
+              Plate_x0020__x0023_:$('#Vehicle_Field_18').val(),
+              Delivery_x0020_Date:$('#Vehicle_Field_19').data("kendoDatePicker").value(),
+              Mileage:$('#Vehicle_Field_20').data("kendoEditor").value(),
+              Buy_x0020_Out_x0020_Option:$('#Vehicle_Field_21').prop('checked'),
+              RecordType:"Vehicle"
+              
             }).then(()=>{
             $('#VehicleEditwindow').data("kendoWindow").close();
               }); 
@@ -1196,7 +1289,8 @@ function SetUpPropWindow() {
               Plate_x0020__x0023_:$('#Vehicle_Field_18').val(),
               Delivery_x0020_Date:$('#Vehicle_Field_19').data("kendoDatePicker").value(),
               Mileage:$('#Vehicle_Field_20').data("kendoEditor").value(),
-              Buy_x0020_Out_x0020_Option:$('#Vehicle_Field_21').prop('checked')
+              Buy_x0020_Out_x0020_Option:$('#Vehicle_Field_21').prop('checked'),
+              RecordType:"Vehicle"
               
             }).then(()=>{
             $('#VehicleEditwindow').data("kendoWindow").close();
@@ -1225,7 +1319,7 @@ function SetUpEquipWindow() {
   $('#EquipType_Label').text("Equipment Type");
   $('#EquipType_1').kendoDropDownList(
     {
-      items:['Printer','Plotter']
+      items:['Copier','Plotter']
     }
   );
   $('#Equip_Field_1_Label').text("Equipment Title :");
@@ -1263,6 +1357,45 @@ function SetUpEquipWindow() {
   $('#Equip_Field_10_Label').text("Equipment Location :");
 
   $('#Equip_Field_11_Label').text("Buy Out Option :");
+
+  var Equip_Attachments = $("#Equip_Attachments").kendoListBox({dataTextField:"FileName",dataValueField:"ServerRelativeUrl",template:'<div class="item"><a href="#:ServerRelativeUrl#" target="_blank">#:FileName# </a></div>',selectable:"single"}).data("kendoListBox");
+
+   $('#EquipAddFile').kendoButton({
+      enable:(WadeTrimLeaseManagerWebPart._NewItem?false:true),
+      click:(arg)=>{
+        switch(WadeTrimLeaseManagerWebPart._NewItem)
+          {
+            case false:
+              const fileinput = $('#Vehicle_Field_20');
+              var filereader = new FileReader();
+              //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+              sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                  $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+                });
+                fileinput.val('');
+              });
+              break;
+      }
+    }})
+
+    $('#EquipRemoveFile').kendoButton({
+      enable:(WadeTrimLeaseManagerWebPart._NewItem?false:true),
+      click:(arg)=>{
+        switch(WadeTrimLeaseManagerWebPart._NewItem)
+          {
+            case false:
+              const selected = $("#Equip_Attachments").data("kendoListBox").select().first();
+              var filereader = new FileReader();
+              let item = sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID);
+              item.attachmentFiles.getByName(selected[0].innerText).delete().then(()=>{
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                  $("#Equip_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+              })
+            })
+              break;
+      }
+    }})
 
   $('#Equip_Cancel_Top').kendoButton({
       click:(arg)=>{
@@ -1313,7 +1446,8 @@ function SetUpEquipWindow() {
             Billing_x0020_Fequency:$('#Equip_Field_8').val(),
             Equipment_x0020_Office:$('#Equip_Field_9').val(),
             Equipment_x0020_Location:$('#Equip_Field_10').val(),
-            Buy_x0020_Out_x0020_Option:$('#Equip_Field_11').prop('checked')
+            Buy_x0020_Out_x0020_Option:$('#Equip_Field_11').prop('checked'),
+            RecordType:$('#EquipType_1').val()
 
           }).then(()=>{
           $('#EquipEditwindow').data("kendoWindow").close();
@@ -1360,8 +1494,8 @@ function SetUpEquipWindow() {
             Billing_x0020_Fequency:$('#Equip_Field_8').val(),
             Equipment_x0020_Office:$('#Equip_Field_9').val(),
             Equipment_x0020_Location:$('#Equip_Field_10').val(),
-            Buy_x0020_Out_x0020_Option:$('#Equip_Field_11').prop('checked')
-            
+            Buy_x0020_Out_x0020_Option:$('#Equip_Field_11').prop('checked'),
+            RecordType:$('#EquipType_1').val()
           }).then(()=>{
           $('#EquipEditwindow').data("kendoWindow").close();
             }); 
@@ -1385,8 +1519,8 @@ function SetUpEquipWindow() {
 
   function UpdatePropData(CurrentItem:any)
     {
-      
 
+        $('#PropAddFile').data('kendoButton').enable(true);
         $('#Prop_Field_1').val(CurrentItem.Title);
 
         var Propfield2= $('#Prop_Field_2').data("kendoEditor");
@@ -1441,10 +1575,17 @@ function SetUpEquipWindow() {
         var Propfield18= $('#Prop_Field_18');
         Propfield18.prop('checked',CurrentItem.Right_x0020_of_x0020_First_x0020);
 
+        $('#Prop_Field_19').val(CurrentItem.Security_x0020_Deposit);
+
+        sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+          $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+        })
+
     }
 
     function UpdateEquipData(CurrentItem:any)
     {
+      $('#EquipAddFile').data('kendoButton').enable(true);
         $('#EquipType_1').data("kendoDropDownList").value(CurrentItem.RecordType);
         $('#Equip_Field_1').val(CurrentItem.Title);
 
@@ -1478,12 +1619,17 @@ function SetUpEquipWindow() {
 
         var Equipfield11= $('#Equip_Field_11');
         Equipfield11.prop("checked",CurrentItem.Buy_x0020_Out_x0020_Option);
+
+        sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+          $("#Equip_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+        })
         
     }
 
     function UpdateVehicleData(CurrentItem:any)
     {
-      
+
+        $('#VehicleAddFile').data('kendoButton').enable(true);
         $('#Vehicle_Field_1').val(CurrentItem.Title);
 
         var Vehiclefield2= $('#Vehicle_Field_2');
@@ -1514,7 +1660,7 @@ function SetUpEquipWindow() {
         Vehiclefield10.trigger("change");
 
         var Vehiclefield11= $('#Vehicle_Field_11');
-        Vehiclefield11.prop("checked",CurrentItem.Minimum_x0020_Term);
+        Vehiclefield11.val(CurrentItem.Minimum_x0020_Term);
 
         var Vehiclefield12 = $('#Vehicle_Field_12');
         Vehiclefield12.val(CurrentItem.Billing_x0020_Fequency);
@@ -1526,26 +1672,30 @@ function SetUpEquipWindow() {
         Vehiclefield14.val(CurrentItem.Year);
 
         var Vehiclefield15 = $('#Vehicle_Field_15');
-        Vehiclefield9.val(CurrentItem.Make);
+        Vehiclefield15.val(CurrentItem.Make);
 
         var Vehiclefield16 = $('#Vehicle_Field_16');
-        Vehiclefield9.val(CurrentItem.Model);
+        Vehiclefield16.val(CurrentItem.Model);
         
         var Vehiclefield17 = $('#Vehicle_Field_17');
-        Vehiclefield9.val(CurrentItem.Lic_x0020_State);
+        Vehiclefield17.val(CurrentItem.Plate_x0020__x0023_);
 
         var Vehiclefield18 = $('#Vehicle_Field_18');
-        Vehiclefield9.val(CurrentItem.Plate_x0020__x0023_);
+        Vehiclefield18.val(CurrentItem.Lic_x0020_State);
 
         var Vehiclefield19 = $('#Vehicle_Field_19').data("kendoDatePicker");
         Vehiclefield19.value(kendo.parseDate(CurrentItem.Delivery_x0020_Date));
         Vehiclefield19.trigger("change");
 
-        var Vehiclefield20 = $('#Vehicle_Field_20');
-        Vehiclefield20.val(CurrentItem.Mileage);
+        var Vehiclefield20 = $('#Vehicle_Field_20').data("kendoEditor");
+        Vehiclefield20.value(CurrentItem.Mileage);
 
         var Vehiclefield21= $('#Vehicle_Field_21');
         Vehiclefield21.prop("checked",CurrentItem.Buy_x0020_Out_x0020_Option);
+
+        sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+          $("#Vehicle_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}))
+        })
     }
 
   
@@ -1606,6 +1756,15 @@ function SetUpEquipWindow() {
 
         var Propfield18= $('#Prop_Field_18');
         Propfield18.prop('checked',false);
+
+        var Propfield19= $('#Prop_Field_19');
+        Propfield19.val('');
+
+        var Propfield20= $('#Prop_Field_20');
+        Propfield20.val('');
+
+        $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:[]}));
+          
         
     }
 
@@ -1645,6 +1804,12 @@ function SetUpEquipWindow() {
 
         var Propfield11= $('#Equip_Field_11');
         Propfield11.prop('checked',false);
+
+        var Propfield12= $('#Equip_Field_12');
+        Propfield12.val('');
+
+        $("#Equip_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:[]}));
+
         
     }
 
@@ -1714,6 +1879,12 @@ function SetUpEquipWindow() {
 
         var Propfield21= $('#Vehicle_Field_21');
         Propfield11.prop('checked',false);
+
+        var Propfield22= $('#Vehicle_Field_22');
+        Propfield22.val('');
+
+        $("#Vehicle_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:[]}));
+
         
     }
 

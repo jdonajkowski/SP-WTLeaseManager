@@ -21,10 +21,26 @@
       ]
     },
     {
-      "name": "Hosted workbench",
+      "name": "Hosted workbench - Lease",
       "type": "chrome",
       "request": "launch",
       "url": "https://wadetrimgroup.sharepoint.com/sites/Administration/SitePages/Lease-Management.aspx?loadSPFX=true&debugManifestsFile=https://localhost:4321/temp/manifests.js",
+      "webRoot": "${workspaceRoot}",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///../../../src/*": "${webRoot}/src/*",
+        "webpack:///../../../../src/*": "${webRoot}/src/*",
+        "webpack:///../../../../../src/*": "${webRoot}/src/*"
+      },
+      "runtimeArgs": [
+        "--remote-debugging-port=9222",
+      ]
+    },
+    {
+      "name": "Hosted workbench - PDP",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://wadetrimgroup.sharepoint.com/sites/Administration/SitePages/Test.aspx?loadSPFX=true&debugManifestsFile=https://localhost:4321/temp/manifests.js",
       "webRoot": "${workspaceRoot}",
       "sourceMaps": true,
       "sourceMapPathOverrides": {

@@ -80,6 +80,15 @@
             <div id="Prop_Field_18_Label" style="display:table-cell; width:220px !important;" ></div>
             <div style="text-align:left"><Input id="Prop_Field_18" type="checkbox"  style="display:table-cell;" /></div>
         </div>
+        <div style="display:table;width: 100%;padding-top:10px">
+            <div id="Prop_Field_19_Label" style="display:table-cell; width:220px" > </div>
+            <div style="display:table-cell;padding-right: 4px;" class="w3-rest"><Input id="Prop_Field_19" class="k-textbox" style="display:table-cell; width:100%" /></div>
+        </div>
+        <div style="display:table;width: 100%;padding-top:10px">
+                <div id="Prop_Field_20_Label" style="display:table-cell; width:220px !important;">Attachment(s) :</div>
+                <div class="w3-cell-row" style="text-align: left;"><div class="w3-cell" style="width:95px;text-align: left;vertical-align:bottom;float:left;"> <input id="Prop_Field_20" type="file" name="files[]" multiple="multiple" style="float:left"></div><div class="w3-cell" style="text-align: right; vertical-align: top;width:110px;"><button id="PropAddFile" data-role="button" class="k-button k-state-disabled" role="button" aria-disabled="true" tabindex="0">Add File</button></div><div class="w3-cell" style="text-align: right; vertical-align: top;width:110px;"><button id="PropRemoveFile" data-role="button" class="k-button" role="button" aria-disabled="false" tabindex="0">Remove File</button></div></div>
+                <div style="text-align:left"><select id="Prop_Attachments" style="width: 100%; display: none;" data-role="listbox" multiple="multiple"></select></div>
+            </div>
           <div class= "w3-row ">
               <div class="w3-half w3-container">
 
@@ -104,7 +113,7 @@
             <div id="EquipType_Label" style="display:table-cell; width:220px" > </div>
             <div style="display:table-cell;padding-right: 4px;" class="w3-rest"><select id="EquipType_1" style="display:table-cell; width:100%">
                 <option>Plotter</option>
-                <option>Printer</option>
+                <option>Copier</option>
             </select></div>
         </div>
         <div style="display:table;width: 100%;padding-top:10px">
@@ -151,6 +160,11 @@
             <div id="Equip_Field_11_Label" style="display:table-cell; width:220px !important;" ></div>
             <div style="text-align:left"><Input id="Equip_Field_11" type="checkbox"  style="display:table-cell;" /></div>
         </div>
+        <div style="display:table;width: 100%;padding-top:10px">
+                <div id="Equip_Field_12_Label" style="display:table-cell; width:220px !important;">Attachment(s) :</div>
+                <div class="w3-cell-row" style="text-align: left;"><div class="w3-cell" style="width:95px;text-align: left;vertical-align:bottom;float:left;"> <input id="Equip_Field_12" type="file" name="files[]" multiple="multiple" style="float:left"></div><div class="w3-cell" style="text-align: right; vertical-align: top;width:110px;"><button id="EquipAddFile" data-role="button" class="k-button k-state-disabled" role="button" aria-disabled="true" tabindex="0" disabled="disabled">Add File</button></div><div class="w3-cell" style="text-align: right; vertical-align: top;width:110px;"><button id="EquipRemoveFile" data-role="button" class="k-button" role="button" aria-disabled="false" tabindex="0">Remove File</button></div></div>
+                <div style="text-align:left"><select id="Equip_Attachments" style="width: 100%; display: none;" data-role="listbox" multiple="multiple"></select></div>
+            </div>
         <div class= "w3-row ">
             <div class="w3-half w3-container">
 
@@ -255,7 +269,14 @@
             <div id="Vehicle_Field_21_Label" style="display:table-cell; width:220px !important;" ></div>
             <div style="text-align:left"><Input id="Vehicle_Field_21" type="checkbox" style="display:table-cell;" /></div>
         </div>
-        <div class= "w3-row ">
+        <div style="display:table;width: 100%;padding-top:10px">
+                <div id="Prop_Field_22_Label" style="display:table-cell; width:220px !important;"></div>
+                <div class="w3-cell-row" style="text-align: left; padding-bottom: 5px;"><div class="w3-cell" style="width:95px;text-align: left;vertical-align:middle;float:left;"> <input id="Vehicle_Field_22" type="file" name="files[]" multiple="multiple" style="float:left"></div><div class="w3-cell" style="text-align: right; vertical-align: top;width:110px;"><button id="VehicleAddFile" data-role="button" class="k-button k-state-disabled" role="button" aria-disabled="true" tabindex="0" disabled="disabled">Add File</button></div><div class="w3-cell" style="text-align: right; vertical-align: top;width:110px;"><button id="VehicleRemoveFile" data-role="button" class="k-button" role="button" aria-disabled="false" tabindex="0">Remove File</button></div></div>
+                <div style="text-align:left"><select id="Vehicle_Attachments" style="width: 100%; display: none;" data-role="listbox" multiple="multiple"></select></div>
+            </div>
+
+            <div class= "w3-row ">
+                        <div class= "w3-row ">
             <div class="w3-half w3-container">
             </div>
             <div style="display:table;width: 100%;padding-top:10px" >
