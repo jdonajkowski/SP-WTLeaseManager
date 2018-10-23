@@ -1,6 +1,17 @@
 @import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
 
 .wadeTrimLeaseManager {
+  :global{
+    .k-window-titlebar{
+      background-color: green !important;
+      color: whitesmoke !important;
+    }
+    .k-header{
+      background-color: green !important;
+      color: whitesmoke !important;
+    }
+    }
+
   .container {
     max-width: 700px;
     margin: 0px auto;
@@ -70,21 +81,5 @@
       vertical-align: top;
       display: inline-block;
     }
-    .k-window-titlebar{
-      background-color: green !important;
-      color: whitesmoke !important;
-    }
-    .k-header{
-      background-color: green !important;
-      color: whitesmoke !important;
-    }
-  }
-  .k-window-titlebar{
-    background-color: green !important;
-    color: whitesmoke !important;
-  }
-  .k-header{
-    background-color: green !important;
-    color: whitesmoke !important;
   }
 }
