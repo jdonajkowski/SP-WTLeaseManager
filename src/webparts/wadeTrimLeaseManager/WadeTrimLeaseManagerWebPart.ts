@@ -364,6 +364,7 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
                     Plate_x0020__x0023_:{type: "string"},
                     Delivery_x0020_Date:{type: "Date"},
                     Mileage:{type: "string"},
+                    Early_x0020_Cancellation:{type: "Date"}
                 
 
                 }
@@ -709,8 +710,16 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
     hidden:true,
   },
   {
-    field:"Delivery_X0020_Date",
+    field:"Delivery_x0020_Date",
     title:"Delivery Date",
+    filterable: true,
+    encoded: false,
+    hidden:true,
+    format: "{0: MMM dd yyyy}"
+  },
+  {
+    field:"Early_x0020_Cancellation",
+    title:"Early Cancellation",
     filterable: true,
     encoded: false,
     hidden:true,
@@ -877,7 +886,15 @@ function SetUpPropWindow() {
 
       $('#Prop_Field_18_Label').text("Right of First Refusal :");
       
-      $('#Prop_Field_19_Label').text("Security Deposit:");
+      $('#Prop_Field_19_Label').text("Security Deposit:").val(0);
+
+      $('#Prop_Field_20_Label').text("Early Cancellation Date:");
+
+      $('#Prop_Field_20').kendoDatePicker(
+          {
+              format:"{0: MMM dd, yyyy}",
+          }
+      );
       
       var Prop_Attachments = $("#Prop_Attachments").kendoListBox({dataTextField:"FileName",dataValueField:"ServerRelativeUrl",template:'<div class="item"><a href="#:ServerRelativeUrl#" target="_blank">#:FileName# </a></div>',selectable:"single"}).data("kendoListBox");
 
@@ -887,7 +904,7 @@ function SetUpPropWindow() {
         switch(WadeTrimLeaseManagerWebPart._NewItem)
           {
             case false:
-              const fileinput = $('#Vehicle_Field_20');
+              const fileinput = $('#Prop_Field_21');
               var filereader = new FileReader();
               //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
               sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
@@ -895,6 +912,7 @@ function SetUpPropWindow() {
                   $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
                 });
                 fileinput.val('');
+                $("#Prop_Attachments").data("kendoListBox").refresh();
               });
               break;
       }
@@ -944,9 +962,21 @@ function SetUpPropWindow() {
                   Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
                   Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
                   Security_x0020_Deposit:$('#Prop_Field_19').val(),
+                  Early_x0020_Cancellation:$('#Prop_Field_21').data("kendoDatePicker").value(),
                   RecordType:'Property'
                 }
-              ).then(()=>{
+              ).then((newrecord)=>{
+                const fileinput = $('#Vehicle_Field_22');
+                var filereader = new FileReader();
+                //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+                  sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                    $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
+                  });
+                  fileinput.val('');
+                  $("#Prop_Attachments").data("kendoListBox").data.refresh();
+                });
+              }).then(()=>{
                 $('#PropEditwindow').data("kendoWindow").close();
                   }); 
               break;
@@ -971,6 +1001,7 @@ function SetUpPropWindow() {
                   Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
                   Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
                   Security_x0020_Deposit:$('#Prop_Field_19').val(),
+                  Early_x0020_Cancellation:$('#Prop_Field_20').data("kendoDatePicker").value(),
                   RecordType:'Property'
 
               }).then(()=>{
@@ -1008,9 +1039,21 @@ function SetUpPropWindow() {
                   Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
                   Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
                   Security_x0020_Deposit:$('#Prop_Field_19').val(),
+                  Early_x0020_Cancellation:$('#Prop_Field_20').data("kendoDatePicker").value(),
                   RecordType:'Property'
                 }
-              ).then(()=>{
+              ).then((newrecord)=>{
+                const fileinput = $('#Vehicle_Field_22');
+                var filereader = new FileReader();
+                //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+                  sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                    $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
+                    $("#Prop_Attachments").data("kendoListBox").refresh();
+                  });
+                  fileinput.val('');
+                });
+              }).then(()=>{
                 $('#PropEditwindow').data("kendoWindow").close();
                   }); 
               break;
@@ -1035,6 +1078,7 @@ function SetUpPropWindow() {
                   Renewal_x0020_Option_x0028_s_x00:$('#Prop_Field_17').data("kendoEditor").value(),
                   Right_x0020_of_x0020_First_x0020:$('#Prop_Field_18').prop('checked'),
                   Security_x0020_Deposit:$('#Prop_Field_19').val(),
+                  Early_x0020_Cancellation:$('#Prop_Field_20').data("kendoDatePicker").value(),
                   RecordType:'Property'
 
               }).then(()=>{
@@ -1086,11 +1130,11 @@ function SetUpPropWindow() {
       }
   );
 
-    $('#Vehicle_Field_11_Label').text("Min Term :");
+    $('#Vehicle_Field_11_Label').text("Min Term :").val(0);
 
-    $('#Vehicle_Field_12_Label').text("Billing Frequency :");
+    $('#Vehicle_Field_12_Label').text("Billing Frequency :").val(0);
 
-    $('#Vehicle_Field_13_Label').text("Minimum Payment:");
+    $('#Vehicle_Field_13_Label').text("Minimum Payment:").val(0);
 
     $('#Vehicle_Field_14_Label').text("Year:");
 
@@ -1139,6 +1183,7 @@ function SetUpPropWindow() {
               sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
                 sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
                   $("#Vehicle_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
+                  $("#Vehicle_Attachments").data("kendoListBox").refresh();
                 });
                 fileinput.val('');
               });
@@ -1197,7 +1242,18 @@ function SetUpPropWindow() {
                 Buy_x0020_Out_x0020_Option:$('#Vehicle_Field_21').prop('checked'),
                 RecordType:"Vehicle"
               }
-            ).then(()=>{
+            ).then((newrecord)=>{
+              const fileinput = $('#Vehicle_Field_22');
+              var filereader = new FileReader();
+              //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+              sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                  $("#Vehicle_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
+                  $("#Vehicle_Attachments").data("kendoListBox").refresh();
+                });
+                fileinput.val('');
+              });
+            }).then(()=>{
               $('#VehicleEditwindow').data("kendoWindow").close();
                 }); 
             break;
@@ -1265,7 +1321,18 @@ function SetUpPropWindow() {
                 Buy_x0020_Out_x0020_Option:$('#Vehicle_Field_21').prop('checked'),
                 RecordType:"Vehicle"
               }
-            ).then(()=>{
+            ).then((newrecord)=>{
+              const fileinput = $('#Vehicle_Field_22');
+              var filereader = new FileReader();
+              //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+              sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+                sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                  $("#Vehicle_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
+                  $("#Vehicle_Attachments").data("kendoListBox").refresh();
+                });
+                fileinput.val('');
+              });
+            }).then(()=>{
               $('#VehicleEditwindow').data("kendoWindow").close();
                 }); 
             break;
@@ -1368,14 +1435,15 @@ function SetUpEquipWindow() {
         switch(WadeTrimLeaseManagerWebPart._NewItem)
           {
             case false:
-              const fileinput = $('#Vehicle_Field_20');
+              const fileinput = $('#Equip_Field_12');
               var filereader = new FileReader();
               //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
               sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
                 sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
-                  $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
+                  $("#Equip_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
                 });
                 fileinput.val('');
+                $("#Equip_Attachments").data("kendoListBox").refresh();
               });
               break;
       }
@@ -1432,7 +1500,17 @@ function SetUpEquipWindow() {
               Buy_x0020_Out_x0020_Option:$('#Equip_Field_11').prop('checked'),
               RecordType:$('#EquipType_1').val()
             }
-          ).then(()=>{
+          ).then((newrecord)=>{
+            const fileinput = $('#Equip_Field_12');
+            var filereader = new FileReader();
+            //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+            sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+              sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                $("#Equip_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
+              });
+              fileinput.val('');
+            });
+          }).then(()=>{
             $('#EquipEditwindow').data("kendoWindow").close();
               }); 
           break;
@@ -1480,7 +1558,17 @@ function SetUpEquipWindow() {
               Buy_x0020_Out_x0020_Option:$('#Equip_Field_11').prop('checked'),
               RecordType:$('#EquipType_1').val()
             }
-          ).then(()=>{
+          ).then((newrecord)=>{
+            const fileinput = $('#Equip_Field_12');
+            var filereader = new FileReader();
+            //var data = filereader.readAsArrayBuffer(fileinput[0].files[0])
+            sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.add(fileinput[0].files[0].name,fileinput[0].files[0]).then((rdata)=>{
+              sp.web.lists.getByTitle("LeaseManagement").items.getById(newrecord.data.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
+                $("#Equip_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
+              });
+              fileinput.val('');
+            });
+          }).then(()=>{
             $('#EquipEditwindow').data("kendoWindow").close();
               }); 
           break;
@@ -1578,6 +1666,10 @@ function SetUpEquipWindow() {
         Propfield18.prop('checked',CurrentItem.Right_x0020_of_x0020_First_x0020);
 
         $('#Prop_Field_19').val(CurrentItem.Security_x0020_Deposit);
+
+        var Propfield20 = $('#Prop_Field_20').data("kendoDatePicker");
+        Propfield20.value(kendo.parseDate(CurrentItem.Early_x0020_Cancellation));
+        Propfield20.trigger("change");
 
         sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).attachmentFiles.select("FileName","ServerRelativeUrl").get().then(resault=>{
           $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:resault}));
@@ -1730,10 +1822,10 @@ function SetUpEquipWindow() {
         Propfield8.value('');
 
         var Propfield9= $('#Prop_Field_9');
-        Propfield9.val('');
+        Propfield9.val('0');
 
         var Propfield10= $('#Prop_Field_10');
-        Propfield10.val('');
+        Propfield10.val('0');
 
         var Propfield11= $('#Prop_Field_11');
         Propfield11.val('');
@@ -1760,10 +1852,14 @@ function SetUpEquipWindow() {
         Propfield18.prop('checked',false);
 
         var Propfield19= $('#Prop_Field_19');
-        Propfield19.val('');
+        Propfield19.val('0');
 
-        var Propfield20= $('#Prop_Field_20');
-        Propfield20.val('');
+        var Propfield20 = $('#Prop_Field_20').data("kendoDatePicker");
+        Propfield20.value(today);
+        Propfield20.trigger("change");
+
+        var Propfield21= $('#Prop_Field_21');
+        Propfield21.val('');
 
         $("#Prop_Attachments").data("kendoListBox").setDataSource(new kendo.data.DataSource({data:[]}));
           
@@ -1790,13 +1886,13 @@ function SetUpEquipWindow() {
         Propfield5.trigger("change");
 
         var Propfield6= $('#Equip_Field_6');
-        Propfield6.val('');
+        Propfield6.val('0');
 
         var Propfield7 = $('#Equip_Field_7');
-        Propfield7.val('');
+        Propfield7.val('0');
 
         var Propfield8= $('#Equip_Field_8');
-        Propfield8.val('');
+        Propfield8.val('0');
 
         var Propfield9= $('#Equip_Field_9');
         Propfield9.val('');
@@ -1849,13 +1945,13 @@ function SetUpEquipWindow() {
         Propfield10.trigger("change");
 
         var Propfield11= $('#Vehicle_Field_11');
-        Propfield11.val('');
+        Propfield11.val('0');
 
         var Propfield12= $('#Vehicle_Field_12');
-        Propfield12.val('');
+        Propfield12.val('0');
 
         var Propfield13= $('#Vehicle_Field_13');
-        Propfield13.val('');
+        Propfield13.val('0');
 
         var Propfield14= $('#Vehicle_Field_14');
         Propfield14.val('');
