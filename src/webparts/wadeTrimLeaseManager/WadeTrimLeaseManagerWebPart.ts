@@ -27,10 +27,12 @@ import styles from './WadeTrimLeaseManager.module.scss';
 
 
 let _instance: number = 0;
+let active:string ='1';
 
 export interface IWadeTrimLeaseManagerWebPartProps {
   description: string;
   items:any[];
+  active:string;
 }
 
 export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<IWadeTrimLeaseManagerWebPartProps> {
@@ -40,6 +42,8 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
   private _koItems: KnockoutObservableArray<any>=ko.observableArray();
   private static _NewItem:boolean = false;
   private _spPNPListData:any[];
+  private _active:KnockoutObservable<string> = ko.observable(active);
+  
 
   /**
    * Shouter is used to communicate between web part and view model.
@@ -61,6 +65,10 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
       this._shouter.notifySubscribers(newValue, 'description');
     });
 
+    this._koDescription.subscribe((newValue: string) => {
+      this._shouter.notifySubscribers(newValue, 'active');
+    });
+
     this._koItems.subscribe((newitems:any[])=>{
       this._shouter.notifySubscribers(newitems, 'items');
     });
@@ -68,14 +76,19 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
     // Get Connection to current site
     sp.setup({spfxContext: this.context});
 
-    sp.web.lists.getByTitle("LeaseManagement").items.getAll().then((FirstItems:any[]) =>{
+    sp.web.lists.getByTitle("LeaseManagement").items.select("Id","Title","Premises","Lanlord","RecordType","Lease_x0020_Expiration","Cancellation_x0020_Details","Cancellation_x0020_Option","Electricity_x0020_Included",
+    "Gas_x0020_Included","Lease_x0020_Commencement","Lease_x0020_Type","Operating_x0020_Expenses","Opt_x002d_Out_x0020_Warning","Renewal_x0020_Option_x0028_s_x00","Rent","Right_x0020_of_x0020_First_x0020","Security_x0020_Deposit",
+    "Size","Tenant_x0020_Improvements_x0020_","Term","Water_x0020_Included","Billing_x0020_Fequency","Buy_x0020_Out_x0020_Option","Equipment_x0020_Description","Leasing_x0020_Company","Minimum_x0020_Payment","Minimum_x0020_Term",
+    "Equipment_x0020_Location","Equipment_x0020_Office","Driver","VIN","Project","CO_x002f_Phase_x002f_ORG","Unit","Market_x0020_Segment","Vehicle_x0020_Office","Year","Make","Model","Lic_x0020_State","Plate_x0020__x0023_",
+    "Delivery_x0020_Date","Mileage","Early_x0020_Cancellation","Active").filter("Active eq "+ active).getAll().then((FirstItems:any[]) =>{
       this._spPNPListData = FirstItems;
     });
 
     const bindings: IWadeTrimLeaseManagerBindingContext = {
       description: this.properties.description,
       items:this._spPNPListData,
-      shouter: this._shouter 
+      shouter: this._shouter,
+      active: this.properties.active
     };
 
     ko.applyBindings(bindings, this._componentElement);
@@ -85,7 +98,11 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
 
   public refreshGrid():void{
     var kgrid = $("#LeaseGrid").data("kendoGrid");
-            sp.web.lists.getByTitle("LeaseManagement").items.getAll().then((FirstItems:any[]) =>{
+            sp.web.lists.getByTitle("LeaseManagement").items.select("Id","Title","Premises","Lanlord","RecordType","Lease_x0020_Expiration","Cancellation_x0020_Details","Cancellation_x0020_Option","Electricity_x0020_Included",
+            "Gas_x0020_Included","Lease_x0020_Commencement","Lease_x0020_Type","Operating_x0020_Expenses","Opt_x002d_Out_x0020_Warning","Renewal_x0020_Option_x0028_s_x00","Rent","Right_x0020_of_x0020_First_x0020","Security_x0020_Deposit",
+            "Size","Tenant_x0020_Improvements_x0020_","Term","Water_x0020_Included","Billing_x0020_Fequency","Buy_x0020_Out_x0020_Option","Equipment_x0020_Description","Leasing_x0020_Company","Minimum_x0020_Payment","Minimum_x0020_Term",
+            "Equipment_x0020_Location","Equipment_x0020_Office","Driver","VIN","Project","CO_x002f_Phase_x002f_ORG","Unit","Market_x0020_Segment","Vehicle_x0020_Office","Year","Make","Model","Lic_x0020_State","Plate_x0020__x0023_",
+            "Delivery_x0020_Date","Mileage","Early_x0020_Cancellation","Active").filter("Active eq "+ active).getAll().then((FirstItems:any[]) =>{
               FirstItems.forEach((item)=>{
                 item.Lease_x0020_Expiration = mo(Date.parse(item.Lease_x0020_Expiration)).format('L');
               });
@@ -98,10 +115,13 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
             });
   }
 
+  
+
   public render(): void {
     var grid:any;
     var selectedlease:any;
     if (!this.renderedOnce) {
+      active=this.properties.active
       this.domElement.appendChild(this._componentElement);
       var WindowsBaseHTML = $('#PropEditwindow').text();
       $('#LeaseWebpart').height.bind($('LeaseGrid').height);
@@ -175,16 +195,20 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
       }).data("kendoWindow");
     
     
-    sp.web.lists.getByTitle("LeaseManagement").items.getAll().then((FirstItems:any[]) =>{
+    sp.web.lists.getByTitle("LeaseManagement").items.select("Id","Title","Premises","Lanlord","RecordType","Lease_x0020_Expiration","Cancellation_x0020_Details","Cancellation_x0020_Option","Electricity_x0020_Included",
+    "Gas_x0020_Included","Lease_x0020_Commencement","Lease_x0020_Type","Operating_x0020_Expenses","Opt_x002d_Out_x0020_Warning","Renewal_x0020_Option_x0028_s_x00","Rent","Right_x0020_of_x0020_First_x0020","Security_x0020_Deposit",
+    "Size","Tenant_x0020_Improvements_x0020_","Term","Water_x0020_Included","Billing_x0020_Fequency","Buy_x0020_Out_x0020_Option","Equipment_x0020_Description","Leasing_x0020_Company","Minimum_x0020_Payment","Minimum_x0020_Term",
+    "Equipment_x0020_Location","Equipment_x0020_Office","Driver","VIN","Project","CO_x002f_Phase_x002f_ORG","Unit","Market_x0020_Segment","Vehicle_x0020_Office","Year","Make","Model","Lic_x0020_State","Plate_x0020__x0023_",
+    "Delivery_x0020_Date","Mileage","Early_x0020_Cancellation","Active").filter("Active eq "+ active).getAll().then((FirstItems:any[]) =>{
       this._koItems = ko.observableArray(FirstItems);
 
       const bindings: IWadeTrimLeaseManagerBindingContext = {
         description: this.properties.description,
         items:this._koItems(),
-        shouter: this._shouter 
-
+        shouter: this._shouter,
+        active:this.properties.active
       };
-
+      
       $("#toolbar").kendoToolBar({ 
         items:
         [
@@ -219,8 +243,20 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
         WadeTrimLeaseManagerWebPart._NewItem=true;
         VehicleEditWindow.center().open();
       }
-      }
-          
+      },
+          {type: "button",text: "Toggle Deactivated",Toggle:true,showText:"never", overflow:"never",showIcon:"both",click:(arg)=>{
+            if(active == '1')
+            {
+              active ='0';
+              this.properties.active ='0'
+            }
+            {
+              active='1';
+              this.properties.active ='1'
+            }
+            this.refreshGrid();
+          }
+        }  
         ]
       });
       //$("#TestR").kendoButton();
@@ -234,7 +270,11 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
             { text: "Copier", value: 3 },
             { text: "Vehicle", value: 4 }
         ],
-        change:(test)=>{sp.web.lists.getByTitle("LeaseManagement").items.getAll().then((newItems: any[]) =>{
+        change:(test)=>{sp.web.lists.getByTitle("LeaseManagement").items.select("Id","Title","Premises","Lanlord","RecordType","Lease_x0020_Expiration","Cancellation_x0020_Details","Cancellation_x0020_Option","Electricity_x0020_Included",
+        "Gas_x0020_Included","Lease_x0020_Commencement","Lease_x0020_Type","Operating_x0020_Expenses","Opt_x002d_Out_x0020_Warning","Renewal_x0020_Option_x0028_s_x00","Rent","Right_x0020_of_x0020_First_x0020","Security_x0020_Deposit",
+        "Size","Tenant_x0020_Improvements_x0020_","Term","Water_x0020_Included","Billing_x0020_Fequency","Buy_x0020_Out_x0020_Option","Equipment_x0020_Description","Leasing_x0020_Company","Minimum_x0020_Payment","Minimum_x0020_Term",
+        "Equipment_x0020_Location","Equipment_x0020_Office","Driver","VIN","Project","CO_x002f_Phase_x002f_ORG","Unit","Market_x0020_Segment","Vehicle_x0020_Office","Year","Make","Model","Lic_x0020_State","Plate_x0020__x0023_",
+        "Delivery_x0020_Date","Mileage","Early_x0020_Cancellation","Active").filter("Active eq "+ active).getAll().then((newItems: any[]) =>{
           var grida = $("#LeaseGrid").data("kendoGrid");
           var Selected = $('#kddLeaseType').data("kendoDropDownList");
           switch(Selected.text()){
@@ -364,9 +404,8 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
                     Plate_x0020__x0023_:{type: "string"},
                     Delivery_x0020_Date:{type: "Date"},
                     Mileage:{type: "string"},
-                    Early_x0020_Cancellation:{type: "Date"}
-                
-
+                    Early_x0020_Cancellation:{type: "Date"},
+                    Active:{ype:"boolean"}
                 }
             }
         },
@@ -732,7 +771,15 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
     encoded: false,
     hidden:true,
   },
-  { command: {title: "Remove",name:"Remove" ,click: onClickGridCmd},width: "100px" }
+  {
+    field:"Active",
+    title:"Active",
+    filterable: true,
+    encoded: false,
+    hidden:true,
+  },
+  { command: {title: "Remove",name:"Remove" ,click: onClickGridCmd},width: "100px" },
+  { command: {title: "Deactivate",name:"Deactivate" ,click: onClickGridCmd},width: "100px" }
   
 ]});
   });
@@ -804,7 +851,11 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
                 { text: 'Yes', action:(control)=>{//
                   sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).delete().then(_=>{}).then(()=>{
                   var kgrid = $("#LeaseGrid").data("kendoGrid");
-                  sp.web.lists.getByTitle("LeaseManagement").items.getAll().then((FirstItems:any[]) =>{
+                  sp.web.lists.getByTitle("LeaseManagement").items.select("Id","Title","Premises","Lanlord","RecordType","Lease_x0020_Expiration","Cancellation_x0020_Details","Cancellation_x0020_Option","Electricity_x0020_Included",
+                  "Gas_x0020_Included","Lease_x0020_Commencement","Lease_x0020_Type","Operating_x0020_Expenses","Opt_x002d_Out_x0020_Warning","Renewal_x0020_Option_x0028_s_x00","Rent","Right_x0020_of_x0020_First_x0020","Security_x0020_Deposit",
+                  "Size","Tenant_x0020_Improvements_x0020_","Term","Water_x0020_Included","Billing_x0020_Fequency","Buy_x0020_Out_x0020_Option","Equipment_x0020_Description","Leasing_x0020_Company","Minimum_x0020_Payment","Minimum_x0020_Term",
+                  "Equipment_x0020_Location","Equipment_x0020_Office","Driver","VIN","Project","CO_x002f_Phase_x002f_ORG","Unit","Market_x0020_Segment","Vehicle_x0020_Office","Year","Make","Model","Lic_x0020_State","Plate_x0020__x0023_",
+                  "Delivery_x0020_Date","Mileage","Early_x0020_Cancellation","Active").filter("Active eq "+ active).getAll().then((FirstItems:any[]) =>{
                   FirstItems.forEach((item)=>{
                   item.Lease_x0020_Expiration = mo(Date.parse(item.Lease_x0020_Expiration)).format('L');
               });
@@ -824,6 +875,44 @@ export default class WadeTrimLeaseManagerWebPart extends BaseClientSideWebPart<I
 
         dialog.data("kendoDialog").open();
           
+        }
+        else if(e.data.commandName == "Deactivate"){
+          var gridr = $("#LeaseGrid").data("kendoGrid");
+          selectedlease = gridr.dataItem($(e.currentTarget).closest("tr"));
+          var dialog = $('#dialog');
+          dialog.kendoDialog({
+            width: "300px",
+            title: "Lease Deactivation",
+            closable: false,
+            modal: true,
+            content: "<p>Do you want to deactivate Lease : " +selectedlease.Title+".</p>" ,
+            actions: [
+                { text: 'Yes', action:(control)=>{//
+                  sp.web.lists.getByTitle("LeaseManagement").items.getById(selectedlease.ID).update({Active:false}).then(_=>{}).then(()=>{
+                  var kgrid = $("#LeaseGrid").data("kendoGrid");
+                  sp.web.lists.getByTitle("LeaseManagement").items.select("Id","Title","Premises","Lanlord","RecordType","Lease_x0020_Expiration","Cancellation_x0020_Details","Cancellation_x0020_Option","Electricity_x0020_Included",
+                  "Gas_x0020_Included","Lease_x0020_Commencement","Lease_x0020_Type","Operating_x0020_Expenses","Opt_x002d_Out_x0020_Warning","Renewal_x0020_Option_x0028_s_x00","Rent","Right_x0020_of_x0020_First_x0020","Security_x0020_Deposit",
+                  "Size","Tenant_x0020_Improvements_x0020_","Term","Water_x0020_Included","Billing_x0020_Fequency","Buy_x0020_Out_x0020_Option","Equipment_x0020_Description","Leasing_x0020_Company","Minimum_x0020_Payment","Minimum_x0020_Term",
+                  "Equipment_x0020_Location","Equipment_x0020_Office","Driver","VIN","Project","CO_x002f_Phase_x002f_ORG","Unit","Market_x0020_Segment","Vehicle_x0020_Office","Year","Make","Model","Lic_x0020_State","Plate_x0020__x0023_",
+                  "Delivery_x0020_Date","Mileage","Early_x0020_Cancellation","Active").filter("Active eq "+ active).getAll().then((FirstItems:any[]) =>{
+                  FirstItems.forEach((item)=>{
+                  item.Lease_x0020_Expiration = mo(Date.parse(item.Lease_x0020_Expiration)).format('L');
+              });
+              //his._koItems(FirstItems);
+              //this._koItems.notifySubscribers(FirstItems,'items');
+              
+              kgrid.dataSource.data(FirstItems);
+              
+            });
+                  }
+                    
+                  );
+                } },
+                { text: 'No'}
+            ],
+        }).data("kendoDialog").close();
+
+        dialog.data("kendoDialog").open();
         }
   }
 
@@ -2018,7 +2107,8 @@ function SetUpEquipWindow() {
       pages: [
         {
           header: {
-            description: strings.PropertyPaneDescription
+            description: strings.PropertyPaneDescription,
+            a
           },
           groups: [
             {
@@ -2026,6 +2116,9 @@ function SetUpEquipWindow() {
               groupFields: [
                 PropertyPaneTextField('description', {
                   label: strings.DescriptionFieldLabel
+                }),
+                PropertyPaneTextField('active', {
+                  label: strings.ActivePeopertyLabel
                 })
               ]
             }

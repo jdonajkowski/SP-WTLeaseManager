@@ -1,27 +1,30 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
-  "id": "410b87e8-4190-4043-8806-eb468479e0d6",
-  "alias": "WadeTrimLeaseManager",
-  "componentType": "WebPart",
+    "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+    "id": "410b87e8-4190-4043-8806-eb468479e0d6",
+    "alias": "WadeTrimLeaseManager",
+    "componentType": "WebPart",
 
-  // The "*" signifies that the version should be taken from the package.json
-  "version": "*",
-  "manifestVersion": 2,
+    // The "*" signifies that the version should be taken from the package.json
+    "version": "*",
+    "manifestVersion": 2,
 
-  // If true, the component can only be installed on sites where Custom Script is allowed.
-  // Components that allow authors to embed arbitrary script code should set this to true.
-  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
-  "requiresCustomScript": false,
-  "supportsFullBleed": true,
+    // If true, the component can only be installed on sites where Custom Script is allowed.
+    // Components that allow authors to embed arbitrary script code should set this to true.
+    // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+    "requiresCustomScript": false,
+    "supportsFullBleed": true,
 
-  "preconfiguredEntries": [{
-    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
-    "group": { "default": "Wade Trim" },
-    "title": { "default": "Wade Trim Lease Manager" },
-    "description": { "default": "Wade Trim Lease Manager description" },
-    "officeFabricIconFontName": "Page",
-    "properties": {
-      "description": "Wade Trim Lease Manager"
-    }
-  }]
+    "preconfiguredEntries": [{
+        "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
+        "group": { "default": "Wade Trim" },
+        "title": { "default": "Wade Trim Lease Manager" },
+        "description": { "default": "Wade Trim Lease Manager description" },
+        "officeFabricIconFontName": "Page",
+        "properties": [{
+
+            "description": "Wade Trim Lease Manager",
+            "active": "1"
+
+        }]
+    }]
 }

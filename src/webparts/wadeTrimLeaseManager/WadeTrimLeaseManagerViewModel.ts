@@ -14,6 +14,7 @@ export interface IWadeTrimLeaseManagerBindingContext extends IWadeTrimLeaseManag
 export default class WadeTrimLeaseManagerViewModel {
   public description: KnockoutObservable<string> = ko.observable('');
   public items: KnockoutObservableArray<any> = ko.observableArray();
+  public active:KnockoutObservable<string> = ko.observable('1');
 
   public wadeTrimLeaseManagerClass: string = styles.wadeTrimLeaseManager;
   public containerClass: string = styles.container;
@@ -27,14 +28,16 @@ export default class WadeTrimLeaseManagerViewModel {
 
   constructor(bindings: IWadeTrimLeaseManagerBindingContext) {
     this.description(bindings.description);
+    this.active(bindings.active);
     
 
     // When web part description is updated, change this view model's description.
     bindings.shouter.subscribe((value: string) => {
-      this.description(value);
-    }, this, 'description');
+      this.description(value);}, this, 'description');
     bindings.shouter.subscribe((value:any[])=>{
       this.items(value);},this,"items");
+    bindings.shouter.subscribe((value:string)=>{
+       this.active(value);},this,"active");
 
     SPComponentLoader.loadCss('https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.common.min.css');
     //SPComponentLoader.loadCss('https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.metro.min.css');
